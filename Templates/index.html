@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Video Downloader</title>
+    <style>
+        
+        body {
+            background: linear-gradient(135deg, #4e0691, #b02739); /* Blue to Purple gradient */
+            font-family: Arial, sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Top bar styles */
+        .top-bar {
+            background: linear-gradient(135deg, #22d3ff2d, #ff3bc42c);
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 36px; /* Bigger text */
+            margin: 0;
+            padding: 10px;
+        }
+
+        /* Centered and enlarged slider button styles */
+        .download-options {
+            background: linear-gradient(135deg, #ff3b3b38rgba(83, 76, 175, 0.219)af);
+            border-radius: 0 0 15px 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+
+        .slider-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .slider {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            height: 40px;
+        }
+
+        .slider input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4caf50;
+            cursor: pointer;
+            border-radius: 20px;
+        }
+
+        .slider-label:before {
+            content: "";
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #fff;
+            top: 1px;
+            left: 2px;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider-label {
+            background-color: #ffeb3b;
+        }
+
+        input:checked + .slider-label:before {
+            transform: translateX(40px);
+        }
+
+        /* Styling for the Mp3 and Mp4 labels */
+        .label-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .label-container label {
+            font-size: 20px; /* Bigger text */
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .mp3-label {
+            color: #4caf50; /* Green */
+        }
+
+        .mp4-label {
+            color: #ffeb3b; /* Yellow */
+        }
+
+        /* Site information styles */
+        .site-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left; /* Align text to the left */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px; /* Limit width for better readability */
+            margin-top: 20px; /* Add some space between the top bar and site info */
+        }
+
+        /* Form and button styles */
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px; /* Limit width for better readability */
+        }
+
+        label {
+            font-size: 18px;
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2289ff, #ff3bc4);
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #82bcff, #ff85da);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top bar and other elements (same as your existing HTML) -->
+
+    <!-- Main download form -->
+    <div class="container">
+        <form method="POST" action="/" enctype="multipart/form-data">
+            <label for="url">Enter YouTube URL:</label>
+            <input type="text" name="url" id="url" required>
+            <br>
+            <button type="button" id="download-button">Download</button>
+        </form>
+    </div>
+    <!-- JavaScript code to handle the download -->
+    <script>
+        document.getElementById("download-button").addEventListener("click", function () {
+            const url = document.getElementById("url").value;
+            if (url) {
+                // Send a POST request to your Flask endpoint to start the download
+                fetch("/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `url=${encodeURIComponent(url)}`,
+                })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        // Create a temporary URL for the downloaded blob
+                        const blobURL = URL.createObjectURL(blob);
+
+                        // Create a download link
+                        const a = document.createElement("a");
+                        a.style.display = "none";
+                        a.href = blobURL;
+                        a.download = "downloaded-video.mp4"; // Set the filename
+
+                        // Add the download link to the DOM
+                        document.body.appendChild(a);
+
+                        // Trigger a click event on the download link
+                        a.click();
+
+                        // Clean up
+                        URL.revokeObjectURL(blobURL);
+                        document.body.removeChild(a);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("Error: Failed to download the video.");
+                    });
+            } else {
+                alert("Please enter a YouTube URL.");
+            }
+        });
+    </script>
+      <div class="site-info">
+        <h2>About This Site</h2>
+        <p>Welcome to the Donki Video Downloader website! This platform allows you to download YouTube videos as an MP4 video.</p>
+        <p>Our user-friendly interface makes it easy to get your favorite videos in just a few clicks. Simply enter the YouTube URL, and we'll take care of the rest.</p>
+        <p>Enjoy hassle-free video downloading with my service</p>
+    </div>
+    <div class="site-info">
+        <h2>Links</h2>
+        <p>I highly recommend to use an mp4 to mp3 converter such as.</p>
+        <p>https://cloudconvert.com/mp4-to-mp3</p>
+        <p>Have fun.</p>
+        <div class="left-side">
+            <h2>Made by donki lol</h2>
+            <p>I made this.</p>
+        </div>
+</body>
+</html>
